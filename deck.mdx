@@ -1,0 +1,134 @@
+import './GlobalStyle';
+import { Flex, Box } from '@rebass/grid'
+import { LiveCode } from 'mdx-deck-live-code';
+export { default as theme } from './theme'
+
+# why Hooks?
+---
+
+<p>shouldComponentUpdate?</p>
+<p>getDerivedStateFromProps()</p>
+
+---
+Reuse stateful logic
+---
+State can be broken into multiple reusable units
+
+```js
+this.state = {
+  isLoading: true,
+  userData: { name, email },
+  friendList: []
+}
+```
+
+```js
+  const { isLoading, setLoading } = useState(true);
+  const { user, setUsers } = useState({ name, email });
+  const { friends, setFriends } = useState([]);
+```
+---
+state manipulation logic can be written outside of component
+
+```js
+this.onClick = () => {
+  axios('/source').then(data => {
+    this.setState({ data, isLoading: false })
+  })
+}
+```
+
+```js
+const { isLoading, data } = usePromise(() => axios('/source'));
+```
+
+---
+<LiveCode
+  size='fullscreen'
+  code={require('!raw-loader!./code/Werewolf-class.js')}
+/>
+---
+<LiveCode
+  errors={false}
+  size='fullscreen'
+  editorProps={{ className: 'live-func' }}
+  code={require('!raw-loader!./code/Werewolf-function.js')}
+/>
+---
+```js
+  function HelloUser() {
+    const { loading, data } = useFetch('/user');
+
+    if (loading) { return 'loading user' }
+
+    return <p>👋 {data.name}!</p>
+  }
+
+  function FriendsCount() {
+    const { loading, data } = useFetch('/friends');
+
+    if (loading) { return 'fetching friends' }
+
+    return <p>You have {data.length} friends</p>
+  }
+
+---
+Code by concern, not lifecycle
+
+<Flex alignItems='center'>
+<Box mr={3}>
+
+```js
+componentDidMount() {
+  document.title = 'component live';
+  this.fetchData();
+  this.pollTwitterAPI();
+}
+
+componentWillUnmount() {
+  document.title = 'component dead';
+  this.stopPollingTwitter();
+}
+```
+
+</Box>
+<Box>
+
+```js
+useEffect(() => {
+  document.title = 'component live';
+  return () => {
+    document.title = 'component dead';
+  }
+})
+useEffect(fetchData);
+useEffect(twitterAPI);
+
+function twitterAPI() {
+  pollTwitterAPI();
+  return stopPollingTwitter;
+}
+```
+
+</Box>
+</Flex>
+---
+- Segregated units are easier to test/debug
+- Transpiled code is very close to original code
+- Less bundle size: can be minified much more
+- Have to write less code overall
+
+```js
+// irrelevant to app-logic
+constructor(props) {
+  super(props);
+  this.handleClick = this.handleClick.bind(this);
+}
+```
+---
+
+# Thank you
+
+built with mdx-deck
+
+---
